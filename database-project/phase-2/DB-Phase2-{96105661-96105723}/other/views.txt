@@ -1,0 +1,50 @@
+CREATE VIEW FastFood AS 
+SELECT Name, Adress, phone , CID
+From Cook
+where kind ="FastFood";
++++++++++++++++++++++++++++++
+CREATE VIEW IranianFood AS 
+SELECT Name, Adress, phone , CID
+From Cook
+where kind="IranianFood";
+++++++++++++++++++++++++++++++
+
+++++++++++++++++++++++++++++++
+Create View AllResturantInArea As
+Select Cid , Name , type
+From Cook
+where ?? ;
+++++++++++++++++++++++++++++++
+
+create view sortedRestaurantINC AS
+Select Sid , Name , points  
+From Cook orderby(points) ;
+++++++++++++++++
+create view sortedRestaurantDC AS
+Select Sid , Name , points  
+From Cook orderby(points) DESC ;
+++++++++++++++++++++
+create View discount As
+select cid , num
+from Discount_Code
+++++++++++++++++
+create View transact AS
+select issue_tracking_num , sender
+From Transact
++++++++++++++++++++++
+create Table prevReq AS
+
++++++++++++++++++++++
+create Table foodPoint As
+select food_point , Cook_RegId , Fname , Cid , transact_num
+From Request_Food order by(food_point) DESC
++++++++++++++++++++++++++++
+
+create view wehereIsDelivery As
+select DID , delivery_x , delivery_y
+From Delivery
++++++++++++++++++++++++++++++++
+create view DeliveryPoints As
+select Cook_RegID, Fname, CID, transact_num
+From Delivery_Order order by(delivery_point) DESC
++++++++++++++++++++++++++++

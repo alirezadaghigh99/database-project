@@ -1,0 +1,254 @@
+
+create or replace function new_avg()
+returns trigger as 
+$$
+begin 
+  update cook 
+    set points = (select avg(food_point) from request_food)
+      where new.cook_regid = cook.regid;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger set_avg
+after insert on request_food
+for each row 
+execute procedure new_avg()
+
+
+create or replace function new_deliver_credit()
+returns trigger as 
+$$
+begin 
+  update delivery 
+    set credit = credit + new.deliver_price
+      where new.did = delivery.did;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger set_credit_of_deliver
+after insert on deliver_order
+for each row 
+execute procedure new_deliver_credit()
+
+create or replace function new_avg_deliver_point()
+returns trigger as 
+$$
+begin 
+  update delivery 
+    set points = (select avg(delivery_point) from deliver_order)
+      where new.did = deliver.did;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger set_deliver_pointavg
+after insert on deliver_order
+for each row 
+execute procedure new_avg_deliver_point()
+
+
+create or replace function new_available_num()
+returns trigger as 
+$$
+begin 
+  update food 
+    set available_num = available_num-1
+      where new.fname = food.foodname and new.cook_regid = food.cook_regid;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger set_available_food
+after insert on request_food
+for each row 
+execute procedure new_available_num()
+
+
+create trigger set_availablity
+before insert on request_food
+for each row 
+execute procedure check_discount()
+
+
+create table Discount_Code
+(num int,
+CID varchar(10),
+amount real,
+primary key(CID, num),
+foreign key(CID) references Customer(CID)
+);
+
+
+
+
+
+
+create or replace function check_discount_used()
+returns trigger as 
+$$
+begin 
+  update customer 
+    set credit = credit - new.food_price
+      where new.cid = customer.cid;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger set_credit_of_customer
+after insert on request_food
+for each row 
+execute procedure check_discount_used()
+
+create or replace function set_credit_of_restaurant()
+returns trigger as 
+$$
+begin 
+		update cook
+  		set credit = credit + new.food_price
+      	where new.cook_regid = cook.regid;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger credit_of_restaurant
+after insert on request_food
+for each row 
+execute procedure set_credit_of_restaurant()
+
+insert into request_food values('cu1','c1','pizza','a',3,1,'is1',null,500)
+
+create or replace function check_has_credit()
+returns trigger as 
+$$
+begin 
+  if new.food_price > (select credit from customer
+    where customer.cid = new.cid) then
+    raise exception 'pol nadari ke';
+  end if;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger has_credit
+before insert on request_food
+for each row 
+execute procedure check_has_credit()
+
+
+
+
+
+
+create or replace function check_is_available()
+returns trigger as 
+$$
+begin 
+  if 0=(select available_num from food 
+    where new.fname=food.foodname and new.cook_regid=food.cook_regid) then
+    raise exception 'ghazaye nadarim';
+  end if;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger check_available
+before insert on request_food
+for each row 
+execute procedure check_is_available()
+
+
+create or replace function use_discount()
+returns trigger as 
+$$
+begin 
+  if new.discountcode is not null then
+    if (select is_used from discount_code 
+      where discount_code.num = new.discountcode and 
+          discount_code.cid = new.cid) is false then
+    new.food_price = new.food_price*(1-((select amount from discount_code 
+      where discount_code.num = new.discountcode and 
+          discount_code.cid = new.cid)/100));
+    update discount_code 
+      set is_used = true 
+        where discount_code.num = new.discountcode and 
+          discount_code.cid = new.cid;
+    end if;
+  end if;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger discount
+before insert on request_food
+for each row 
+execute procedure use_discount()
+
+
+create or replace function check_status()
+returns trigger as 
+$$
+begin 
+  update request_food 
+    set time_estimate = '0'
+      where new.transact_num = request_food.transact_num;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger status
+after update of status on request_food
+for each row 
+execute procedure check_status()
+
+create or replace function deliver_user()
+returns trigger as 
+$$
+begin 
+  update customer
+
+    set customer.credit = customer.credit - new.deliver_price
+      where new.cid = customer.cid;
+  return new;
+
+
+create trigger deliveruser
+after insert on deliver_order
+for each row 
+execute procedure deliver_user()
+
+
+end;
+$$
+language 'plpgsql'
+
+
+
+create or replace function check_food_price()
+returns trigger as 
+$$
+begin 
+  if (new.food_price) !=(select price from food 
+    where new.fname=food.foodname and new.cook_regid=food.cook_regid) then
+    raise exception 'pole eshtebahi dari midi';
+  end if;
+  return new;
+end;
+$$
+language 'plpgsql'
+
+create trigger checkprices
+before insert on request_food
+for each row 
+execute procedure check_food_price()

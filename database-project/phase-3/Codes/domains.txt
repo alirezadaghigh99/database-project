@@ -1,0 +1,21 @@
+create domain regIdR varchar(10) default '0000000000';
+create domain kindR varchar(30) constraint kindRange check (value in ('fastfood','kebab','italian','iranian'));
+create domain  pointR as dec(2,2) default 0.00 constraint pointing check (value between 0 And 10);
+create domain OIdR varchar(16) default '0000000000000000'; 
+create domain phoneNumberR varchar(8) default '00000000';
+create domain creditR int default 0 constraint crediting check(value >=0)
+create domain priceR int default 0 constraint pricing check(value >=0)
+create domain foodPointR int default 0 constraint pointingoffood check(value between 0 and 10)
+create domain kindOfDrinkR varchar(5) constraint kindDrinkRange check (value in ('cold','hot'));
+create domain DIdR varchar(10) default '0000000000';
+create domain VIdR varchar(6) default '000000';
+create domain personphoneNumberR varchar(11) default '00000000000';
+create domain cardNumberR varchar(16) default '0000000000000000';
+
+insert into request_food values('1','sin','afds','afds','afds',1,'asfd')
+
+
+
+
+
+

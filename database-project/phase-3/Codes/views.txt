@@ -1,0 +1,35 @@
+create view all_restaurant as 
+select cookname from cook
+
+create view italian_restaurant as 
+select cookname from cook
+where kind = 'italian'
+
+create view kebab_restaurant as 
+select cookname from cook
+where kind = 'kebab'
+
+
+create view fastfood as 
+select cookname from cook
+where kind = 'fastfood'
+
+create view iranian_food as 
+select cookname from cook
+where kind = 'iranian'
+
+create view all_ready as 
+select cid , fname from request_food
+where status = true
+
+
+
+create view more_than_4 as
+select cookname from cook 
+where points >=4
+
+create view pointing_restaurant as
+select cookname , points from cook order by points desc
+
+
+
